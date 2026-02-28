@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
 			const { accessToken, refreshToken } = body.data.tokens;
 			localStorage.setItem("beacon_access_token", accessToken);
 			localStorage.setItem("beacon_refresh_token", refreshToken);
-			router.push("/dashboard");
+			router.push("/admin/dashboard");
 		} catch {
 			toast.error("Something went wrong. Please try again.");
 		} finally {
