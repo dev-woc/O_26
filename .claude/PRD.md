@@ -1,806 +1,773 @@
-# Product Requirements Document: Link-in-Bio Page Builder
+# Project Beacon — Product Requirements Document
+
+**Version:** 1.0
+**Date:** 2026-02-28
+**Project Lead:** Jordan Mason
+**Contact:** contact@projectbeacon.org
+
+---
 
 ## 1. Executive Summary
 
-Link-in-Bio Page Builder is a self-hosted, multi-user Linktree alternative that enables users to create a personal landing page with their name, bio, avatar, and a curated list of links. Users select from layout-varying visual themes, receive a shareable public URL based on their chosen slug (e.g., `/cole`), and access a dedicated analytics dashboard tracking clicks per link over time.
+Project Beacon is a blockchain-enabled community services platform that creates an earn-and-spend ecosystem for individuals experiencing homelessness in Orlando, FL. Users earn BeaconCoin (BEACON) by completing community service activities, job training, and daily engagement tasks. Those coins are redeemed at a network of partner locations for essential services including food, transportation, personal care, and housing assistance.
 
-The application is built as a full-stack Next.js app deployed on Vercel, backed by Neon serverless Postgres with Neon Auth for authentication. The editor features a live preview with side-by-side layout on desktop and a toggle mode on mobile, with full drag-and-drop link reordering. Public pages are server-rendered for optimal SEO and social sharing.
+The platform addresses a core failure in traditional aid systems: fragmentation, lack of autonomy, and zero incentive for community participation. By attaching real, spendable value to positive behaviors, Project Beacon creates dignity through agency rather than dependency through charity. Transparent blockchain ledgers ensure accountability for donors, nonprofits, and city stakeholders, while a closed-loop economy prevents speculation and keeps value circulating within the community.
 
-**MVP Goal:** Deliver a fully functional, production-ready link-in-bio platform across 4 sequential phases — from profile editing through theming, public URLs with SEO, and click analytics — with comprehensive E2E testing validating every user journey.
+The MVP delivers a Next.js web application providing the admin dashboard, volunteer management portal, and coin distribution tools — the operational backbone required before the mobile consumer app can launch. The consumer-facing mobile app (React Native) follows in Phase 3 once the backend services, smart contracts, and partner network are established.
+
+**MVP Goal:** Launch a production-ready web admin and volunteer portal with BEACON coin distribution capability, backed by a PostgreSQL database and stubbed blockchain layer, deployable to Vercel + Neon within 90 days.
 
 ---
 
 ## 2. Mission
 
-**Mission Statement:** Provide creators and professionals with a beautiful, self-hosted link-in-bio page they fully control — no vendor lock-in, no premium paywalls for basic features, and complete ownership of their data and analytics.
+**Mission Statement:** To build dignity and opportunity for Orlando's unsheltered community through transparent, earned value exchange — turning community contribution into purchasing power for essential services.
 
-**Core Principles:**
+### Core Principles
 
-1. **Simplicity first** — The editor should be intuitive enough that a user can create and publish their page in under 2 minutes.
-2. **Visual quality** — Public pages should look polished and professional out of the box, rivaling paid alternatives.
-3. **Performance** — Server-rendered public pages load fast, score well on Lighthouse, and render correctly for social media crawlers.
-4. **Self-service** — No admin intervention needed. Users sign up, build, publish, and track analytics independently.
-5. **Test-driven confidence** — Every user journey is validated with E2E tests using agent-browser. No feature ships without comprehensive test coverage.
+1. **Earned Dignity** — Value is gained through contribution, not charity, preserving individual agency and self-worth.
+2. **Privacy First** — No SSN, no permanent address required. Pseudonymous identifiers with user-controlled data sharing.
+3. **Closed-Loop Stability** — BEACON is not tradeable on external exchanges. Value is purpose-driven, not speculative.
+4. **Radical Transparency** — Every transaction is auditable on-chain. Donors and partners see exactly where value flows.
+5. **Sustainable Economics** — A 15% platform fee and crypto-backed reserves enable long-term independence from grant funding.
 
 ---
 
 ## 3. Target Users
 
-### Primary Persona: Content Creators & Professionals
+### 3.1 Primary Users — Unsheltered Individuals
 
-- **Who:** Social media creators, freelancers, small business owners, developers, designers — anyone who needs a single link to share across platforms.
-- **Technical comfort:** Low to medium. They can fill out forms and pick themes but shouldn't need to write code or manage infrastructure.
-- **Key needs:**
-  - A single URL to put in their Instagram/TikTok/Twitter bio
-  - A page that looks professional without design skills
-  - Knowing which links get clicked and when
-  - Ability to quickly update links as their content/projects change
+| Attribute | Description |
+|-----------|-------------|
+| Location | Greater Orlando, FL (street dwellers, shelter/transitional housing) |
+| Tech Access | Basic smartphone (Android/iOS); some rely on physical card access |
+| Digital Literacy | Low to moderate; interface must be intuitive with offline fallback |
+| Key Needs | Food, transportation, personal hygiene, healthcare, housing assistance |
+| Pain Points | Fragmented aid systems, lack of financial autonomy, no proof of contribution |
 
-### Secondary Persona: Self-Hosters / Developers
+**Persona: "Marcus"** — 34, living in a transitional shelter downtown. Has an Android phone. Wants to earn coins doing weekend cleanup to save up for a bus pass and groceries without asking anyone for help.
 
-- **Who:** Developers who want to run their own Linktree alternative rather than depend on a SaaS.
-- **Technical comfort:** High. They'll deploy to Vercel, configure Neon, and potentially customize themes.
-- **Key needs:**
-  - Full data ownership
-  - Open-source codebase they can fork and extend
-  - Clean, well-structured code they can understand and modify
+### 3.2 Secondary Users — Volunteers
+
+| Attribute | Description |
+|-----------|-------------|
+| Profile | Non-profit staff, community members, social workers |
+| Tech Literacy | Moderate to high; uses web app on laptop/tablet |
+| Key Needs | Verify activities, track hours, distribute coins, see impact |
+| Pain Points | Manual tracking, no unified platform, no audit trail for distributions |
+
+**Persona: "Dr. Sarah"** — Case manager at the Coalition for the Homeless. Verifies submitted cleanup activities and distributes coin rewards. Needs simple workflows and clear reporting for her grant applications.
+
+### 3.3 Partner Organizations
+
+| Attribute | Description |
+|-----------|-------------|
+| Types | Local businesses, food services, transit, nonprofits, healthcare |
+| Key Needs | Simple QR redemption, guaranteed settlement, impact reporting |
+| Pain Points | Complex payment processing, no way to serve unbanked customers |
+
+### 3.4 Admins
+
+| Attribute | Description |
+|-----------|-------------|
+| Profile | Project Beacon staff, senior coordinators |
+| Tech Literacy | High |
+| Key Needs | Coin minting/distribution controls, audit logs, system health dashboards |
+| Pain Points | Fraud prevention, regulatory compliance, reserve management |
 
 ---
 
 ## 4. MVP Scope
 
-### In Scope
+### 4.1 In Scope (MVP — Phase 1 & 2)
 
-**Core Functionality:**
-- ✅ User registration with username/slug selection
-- ✅ Email/password authentication
-- ✅ Google OAuth authentication
-- ✅ Profile editor (name, bio, avatar URL)
-- ✅ Link management (add, remove, reorder via drag-and-drop)
-- ✅ Header and divider items between links
-- ✅ Live preview alongside editor
-- ✅ 4 layout-varying themes with instant preview
-- ✅ Slug-based public pages (`/<username>`)
-- ✅ OG meta tags for social sharing
-- ✅ Click tracking per link with timestamps
-- ✅ Analytics dashboard with click counts and time-series charts
-- ✅ Marketing landing page at `/`
+#### Core Functionality
+- ✅ Admin authentication (email + password + 2FA)
+- ✅ Volunteer registration with unique ID system (VOL-x###)
+- ✅ Admin login with elevated role (ADMIN-x###)
+- ✅ Role-based access control (user, volunteer, admin)
+- ✅ BEACON coin distribution by admins to user wallets
+- ✅ Bulk coin distribution for task completion batches
+- ✅ Task creation, assignment, and approval workflow
+- ✅ Activity submission and verification queue
+- ✅ Admin dashboard with distribution history and impact stats
+- ✅ Volunteer dashboard with hours tracked and earnings
+- ✅ Audit logging for all admin and coin actions
+- ✅ Daily earning caps (50 BEACON/day per user)
+- ✅ Transaction history with filterable views
 
-**Technical:**
-- ✅ Server-side rendering for public pages
-- ✅ Responsive design (mobile-first)
-- ✅ TypeScript strict mode throughout
-- ✅ Biome for linting and formatting
-- ✅ Vitest for unit testing
-- ✅ agent-browser for E2E testing of all user journeys
-- ✅ Basic rate limiting on API routes
-- ✅ Explicit save button (no auto-save)
+#### Technical
+- ✅ Next.js 15 web application (App Router)
+- ✅ PostgreSQL via Neon Serverless
+- ✅ Drizzle ORM with schema migrations
+- ✅ JWT authentication with refresh tokens (15 min access / 7 day refresh)
+- ✅ API rate limiting
+- ✅ Comprehensive audit trail table
+- ✅ Vitest unit and integration tests
 
-**Deployment:**
-- ✅ Vercel deployment
-- ✅ Neon serverless Postgres
-- ✅ Neon Auth integration
+#### Deployment
+- ✅ Vercel deployment (web app)
+- ✅ Neon Postgres (database)
 - ✅ Environment-based configuration
 
-### Out of Scope
+### 4.2 Out of Scope (Future Phases)
 
-- ❌ Admin panel / moderation tools
-- ❌ File upload for avatars (URL-only for MVP)
-- ❌ Custom domains per user
-- ❌ Embed support (YouTube, Spotify, etc.)
-- ❌ Monetization features (tipping, paid links)
-- ❌ Email notifications / transactional emails
-- ❌ Auto-save / draft vs published states
-- ❌ Link scheduling (show/hide by date)
-- ❌ Geographic analytics (IP-based location data)
-- ❌ Referrer tracking
-- ❌ Custom CSS / theme editor per user
-- ❌ Team/organization accounts
-- ❌ API access for third-party integrations
-- ❌ Mobile app
-- ❌ Bot protection beyond basic rate limiting
+#### Consumer Mobile App
+- ❌ React Native iOS/Android mobile app
+- ❌ QR code identity system for unsheltered users
+- ❌ Physical card fallback access
+- ❌ Offline-capable mobile wallet
+
+#### Blockchain
+- ❌ Live Polygon mainnet deployment (BeaconToken ERC-20)
+- ❌ Smart contract activity validation on-chain
+- ❌ On-chain service redemption contract
+- ❌ IPFS proof storage
+- ❌ Multi-sig admin wallets for production
+
+#### Partner Network
+- ❌ Partner onboarding portal
+- ❌ POS QR redemption scanning interface
+- ❌ Automated crypto-to-fiat settlement for partners
+- ❌ Partner dashboard and reporting
+
+#### Advanced Tokenomics
+- ❌ Crypto-backed reserve management (BTC/ETH/SOL basket)
+- ❌ Automated BEACON value appreciation schedule
+- ❌ DeFi yield farming integration
+- ❌ Community governance voting
+
+#### Multi-City
+- ❌ Multi-city expansion infrastructure
+- ❌ Geographic sharding
 
 ---
 
 ## 5. User Stories
 
-### Registration & Authentication
+### Primary Stories
 
-**US-1:** As a new user, I want to sign up with my email and choose a unique username, so that I get a personal URL like `/cole` for my link page.
-> *Example: User visits `/`, clicks "Get Started", enters name, email, password, and desired slug `cole`. System checks slug availability in real-time. On success, user lands on the editor.*
+**Story 1 — Admin Coin Distribution**
+> As an admin, I want to distribute BEACON coins to a specific user with a reason and amount, so that I can reward them for completing verified community activities.
 
-**US-2:** As a returning user, I want to log in with my email/password or Google account, so that I can quickly access my editor.
-> *Example: User clicks "Sign In", chooses "Continue with Google", authenticates via OAuth, and is redirected to their editor dashboard.*
+*Example:* Admin selects Marcus's account, enters 25 BEACON, selects "volunteer_reward", adds note "Lake Eola cleanup x5 hours". Coins credited, transaction logged with blockchain hash (stubbed in MVP).
 
-### Profile Editing
+**Story 2 — Volunteer Activity Verification**
+> As a volunteer, I want to review submitted activity evidence (photos, GPS, notes) and approve or reject it, so that only legitimate work earns rewards.
 
-**US-3:** As a logged-in user, I want to edit my name, bio, and avatar URL with a live preview, so that I can see exactly how my page will look before saving.
-> *Example: User types in the bio field "Designer & coffee enthusiast" and the preview panel on the right instantly updates to show the new bio text.*
+*Example:* Dr. Sarah sees 8 pending cleanup submissions in her queue. She reviews photos, marks 7 approved, 1 rejected with reason. System queues coin minting for the 7 approved.
 
-**US-4:** As a logged-in user, I want to add, remove, and reorder links using drag-and-drop, so that I can organize my page the way I want.
-> *Example: User has 5 links. They grab the drag handle on "My Portfolio" and drag it from position 4 to position 1. The preview updates immediately. They click "Save" to persist the change.*
+**Story 3 — Task Management**
+> As an admin, I want to create tasks, assign them to volunteers, and approve completions, so that I can coordinate verification work across my volunteer network.
 
-**US-5:** As a logged-in user, I want to add section headers and dividers between my links, so that I can visually group related links.
-> *Example: User adds a header "Social Media" above their Twitter and Instagram links, and a divider before their "Projects" section.*
+*Example:* Admin creates "Verify weekend activity submissions", assigns to Jane (VOL-4A4D001), sets 4-hour estimate and 30 BEACON reward. Jane completes it; admin approves with +5 BEACON bonus.
 
-### Themes
+**Story 4 — Volunteer Registration**
+> As a new volunteer, I want to register with my organization and skills, so that I can be matched to appropriate verification tasks.
 
-**US-6:** As a logged-in user, I want to pick from 4 visual themes and see the result instantly in the preview, so that I can choose the look that best represents me.
-> *Example: User clicks the "Colorful" theme thumbnail. The preview immediately switches to a vibrant gradient background with rounded, colorful link buttons. They try "Professional" next — the preview shifts to a clean, muted layout with serif typography.*
+*Example:* Jane registers with name, email, phone, "Orlando Coalition" org, skills: `["counseling", "spanish_fluent"]`, availability JSON. Receives VOL-4A4D001 ID.
 
-### Public Pages
+**Story 5 — Bulk Distribution**
+> As an admin, I want to distribute coins to multiple users in one action, so that I can efficiently run weekly volunteer appreciation programs.
 
-**US-7:** As a visitor, I want to view someone's link page at their public URL and click their links, so that I can find their content.
-> *Example: Visitor opens `example.com/cole` in their browser. They see Cole's avatar, bio, and list of links rendered with the "Dark" theme. They click "My YouTube Channel" and are redirected to YouTube.*
+*Example:* Admin uploads or builds a list of 20 recipients with individual amounts and notes. Single confirmation submits all distributions, returning a summary of successes/failures.
 
-### Analytics
+**Story 6 — Impact Dashboard**
+> As an admin, I want to see coins distributed, activities verified, and volunteers active in a given period, so that I can report program impact to grantors.
 
-**US-8:** As a logged-in user, I want to see how many times each of my links has been clicked and view click trends over time, so that I can understand what content resonates with my audience.
-> *Example: User navigates to their analytics dashboard. They see a bar chart showing "YouTube: 342 clicks, Portfolio: 128 clicks, Twitter: 89 clicks" and a line chart showing daily clicks over the past 30 days.*
+*Example:* Monthly view shows: 45 active volunteers, 142 tasks completed, 5,670 BEACON distributed, 892 users helped. Exportable for grant reporting.
+
+**Story 7 — Volunteer Dashboard**
+> As a volunteer, I want to see my hours, tasks completed, and BEACON earned this month, so that I can track my personal contribution and unlock achievement badges.
+
+*Example:* Jane sees: 45.5 hours, 18 tasks, 345 BEACON earned, "Activity Expert" badge unlocked at 100 verifications.
+
+**Story 8 — Audit Log Review**
+> As an admin, I want every coin distribution and admin action to be permanently logged with timestamps and the acting user, so that the system is fraud-resistant and grant-auditable.
+
+*Example:* Auditor queries `GET /admin/audit-log?action=distribute_coins&dateFrom=2026-01-01` and sees full immutable history.
 
 ---
 
 ## 6. Core Architecture & Patterns
 
-### High-Level Architecture
+### 6.1 High-Level Architecture (MVP)
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                        Vercel                           │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │                   Next.js App                     │  │
-│  │                                                   │  │
-│  │  ┌─────────────┐  ┌──────────┐  ┌─────────────┐  │  │
-│  │  │  SSR Public  │  │   API    │  │  SPA Editor  │  │  │
-│  │  │   Pages      │  │  Routes  │  │  + Dashboard │  │  │
-│  │  │  /<slug>     │  │ /api/*   │  │  /editor     │  │  │
-│  │  └─────────────┘  └──────────┘  └─────────────┘  │  │
-│  │                        │                          │  │
-│  └────────────────────────┼──────────────────────────┘  │
-│                           │                             │
-└───────────────────────────┼─────────────────────────────┘
-                            │
-                  ┌─────────┴─────────┐
-                  │   Neon Postgres   │
-                  │  + Neon Auth      │
-                  │  (Serverless)     │
-                  └───────────────────┘
+Browser (Next.js App Router)
+    ↓ Server Actions / API Routes
+Next.js API Layer (JWT auth middleware)
+    ↓
+Service Layer (TypeScript)
+    ↓
+Drizzle ORM
+    ↓
+Neon Serverless PostgreSQL
+
+[Future] Blockchain Layer (Polygon)
+    ↓ Smart Contract Calls
+ActivityValidator.sol + BeaconToken.sol + ServiceRedemption.sol
 ```
 
-### Directory Structure
+### 6.2 Directory Structure
 
 ```
-link-in-bio-page-builder/
-├── src/
-│   ├── app/                          # Next.js App Router
-│   │   ├── (marketing)/              # Marketing/landing route group
-│   │   │   └── page.tsx              # Landing page at /
-│   │   ├── (auth)/                   # Auth route group
-│   │   │   ├── login/page.tsx
-│   │   │   └── signup/page.tsx
-│   │   ├── (dashboard)/              # Authenticated route group
-│   │   │   ├── editor/page.tsx       # Profile editor + live preview
-│   │   │   ├── analytics/page.tsx    # Analytics dashboard
-│   │   │   └── settings/page.tsx     # Account settings (slug change, etc.)
-│   │   ├── [slug]/page.tsx           # Public profile pages (SSR)
-│   │   ├── api/
-│   │   │   ├── auth/[...all]/route.ts  # Neon Auth handlers
-│   │   │   ├── profile/route.ts      # Profile CRUD
-│   │   │   ├── links/route.ts        # Link management
-│   │   │   ├── links/reorder/route.ts
-│   │   │   ├── click/route.ts        # Click tracking endpoint
-│   │   │   └── analytics/route.ts    # Analytics data
-│   │   ├── layout.tsx                # Root layout
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── ui/                       # shadcn/ui components
-│   │   ├── editor/                   # Editor-specific components
-│   │   │   ├── profile-form.tsx
-│   │   │   ├── link-list.tsx
-│   │   │   ├── link-item.tsx
-│   │   │   ├── add-link-dialog.tsx
-│   │   │   └── theme-picker.tsx
-│   │   ├── preview/                  # Live preview components
-│   │   │   └── preview-panel.tsx
-│   │   ├── themes/                   # Theme layout components
-│   │   │   ├── minimal.tsx
-│   │   │   ├── dark.tsx
-│   │   │   ├── colorful.tsx
-│   │   │   └── professional.tsx
-│   │   ├── analytics/                # Analytics components
-│   │   │   ├── click-chart.tsx
-│   │   │   ├── top-links.tsx
-│   │   │   └── time-series.tsx
-│   │   └── marketing/                # Landing page components
-│   │       ├── hero.tsx
-│   │       └── features.tsx
-│   ├── lib/
-│   │   ├── auth.ts                   # Neon Auth server instance
-│   │   ├── db/
-│   │   │   ├── index.ts              # Drizzle client
-│   │   │   ├── schema.ts             # Drizzle schema definitions
-│   │   │   └── migrations/           # Drizzle migrations
-│   │   ├── rate-limit.ts             # Rate limiting utility
-│   │   └── utils.ts                  # Shared utilities
-│   ├── hooks/                        # Custom React hooks
-│   │   ├── use-profile.ts
-│   │   └── use-analytics.ts
-│   └── types/                        # Shared TypeScript types
-│       └── index.ts
-├── tests/
-│   ├── unit/                         # Vitest unit tests
-│   │   ├── lib/
-│   │   └── components/
-│   └── e2e/                          # agent-browser E2E tests
-│       ├── auth.test.ts
-│       ├── editor.test.ts
-│       ├── public-page.test.ts
-│       └── analytics.test.ts
-├── public/                           # Static assets
-├── drizzle.config.ts                 # Drizzle configuration
-├── biome.json                        # Biome linter/formatter config
-├── next.config.ts                    # Next.js configuration
-├── tailwind.config.ts
-├── tsconfig.json
-├── vitest.config.ts
-└── package.json
+src/
+├── app/
+│   ├── (auth)/
+│   │   ├── login/
+│   │   └── register/
+│   ├── (dashboard)/
+│   │   ├── admin/
+│   │   │   ├── distribute/
+│   │   │   ├── tasks/
+│   │   │   ├── reports/
+│   │   │   └── audit-log/
+│   │   └── volunteer/
+│   │       ├── tasks/
+│   │       ├── activities/
+│   │       └── dashboard/
+│   └── api/
+│       ├── auth/
+│       ├── admin/
+│       │   ├── distribute-coins/
+│       │   ├── tasks/
+│       │   └── reports/
+│       └── volunteers/
+│           ├── tasks/
+│           └── activities/
+├── components/
+│   ├── ui/          (shadcn/ui primitives)
+│   ├── forms/
+│   ├── charts/      (Recharts wrappers)
+│   └── tables/
+├── lib/
+│   ├── auth.ts
+│   ├── db.ts        (Drizzle client)
+│   └── blockchain.ts (stub → real Polygon later)
+├── db/
+│   ├── schema.ts    (Drizzle schema)
+│   └── migrations/
+└── services/
+    ├── coinService.ts
+    ├── taskService.ts
+    ├── volunteerService.ts
+    └── auditService.ts
 ```
 
-### Key Design Patterns
+### 6.3 Key Design Patterns
 
-1. **Route Groups** — Use Next.js route groups `(marketing)`, `(auth)`, `(dashboard)` to organize layouts without affecting URL structure.
-2. **Server Components by default** — All pages and layouts are React Server Components unless they need interactivity. Client Components are used only in the editor, theme picker, and analytics charts.
-3. **Server Actions for mutations** — Use Next.js Server Actions for profile saves, link CRUD, and settings changes. API routes for click tracking (called from public pages) and analytics data fetching.
-4. **Optimistic UI** — The editor preview updates instantly on the client; the save button persists to the database.
-5. **SSR for public pages** — The `[slug]` dynamic route fetches profile data server-side and renders the full HTML with OG meta tags.
+- **Server Components + Server Actions** — Data fetching co-located with UI; form mutations via server actions for security
+- **Role-Based Route Groups** — `(auth)`, `(dashboard)` groups with middleware guarding access by role
+- **Service Layer Isolation** — Business logic in `/services`; API routes are thin wrappers
+- **Audit-by-Default** — Every mutation in service layer calls `auditService.log()` before returning
+- **Blockchain Abstraction** — `lib/blockchain.ts` provides a `BlockchainService` interface; MVP uses stub implementation; Polygon real implementation swapped in Phase 4 without changing service layer callers
 
 ---
 
-## 7. Features
+## 7. Core Features
 
-### 7.1 Marketing Landing Page
+### 7.1 ID Generation System
 
-**Route:** `/`
+Unique human-readable IDs based on hex-encoded initials:
 
-A public homepage that explains the product and drives signups.
+```
+Format: VOL-{hex_initials}{3-digit-increment}
+John Mason → J(4A) + M(4D) = VOL-4A4D001
+Duplicate initials → VOL-4A4D002, VOL-4A4D003...
 
-- Hero section with tagline, description, and CTA buttons ("Get Started" / "Sign In")
-- Brief feature highlights (themes, analytics, custom URL)
-- Example preview showing what a link page looks like
-- Footer with minimal links
+Admin: ADMIN-{hex_initials}{increment}
+Alice Brown → A(41) + B(42) = ADMIN-4142001
+```
 
-### 7.2 Authentication
+### 7.2 Coin Distribution Engine
 
-**Routes:** `/login`, `/signup`
+| Feature | Detail |
+|---------|--------|
+| Single distribution | Amount, recipient, type, description, optional taskId |
+| Bulk distribution | Array of up to 100 recipients, atomic or best-effort mode |
+| Distribution types | `volunteer_reward`, `task_completion`, `bonus`, `emergency_assistance` |
+| Admin limits | Per-admin `maxCoinDistributionAmount` (e.g., 500 BEACON/transaction) |
+| Daily cap | 50 BEACON/day per recipient (anti-gaming) |
+| Approval flow | Standard distributions: auto-approved; >100 BEACON: requires second admin |
 
-Powered by Neon Auth (built on Better Auth).
+### 7.3 Task Management
 
-- **Signup flow:**
-  1. User enters display name, email, password, and desired username/slug
-  2. Real-time slug availability check (debounced API call)
-  3. Slug validation: lowercase alphanumeric + hyphens, 3-30 characters, no reserved words
-  4. On success → redirect to `/editor`
-- **Login flow:**
-  1. Email/password form OR "Continue with Google" button
-  2. On success → redirect to `/editor`
-- **Reserved slugs:** `login`, `signup`, `editor`, `analytics`, `settings`, `api`, `admin`, `about`, `help`, etc.
+Lifecycle: `open → assigned → in_progress → completed → approved/rejected`
 
-### 7.3 Profile Editor + Live Preview
+| Role | Capability |
+|------|-----------|
+| Admin | Create, assign, approve/reject, adjust reward |
+| Volunteer | View available, accept, update progress, submit completion with evidence |
 
-**Route:** `/editor`
+### 7.4 Activity Verification Queue
 
-The core editing experience for building a link page.
+Unsheltered users submit activities (photo + GPS + notes). Volunteers review and approve/reject. Admin can override. Approved activities trigger coin minting (via blockchain stub in MVP, live Polygon in Phase 4).
 
-**Editor Panel (left side on desktop):**
-- **Profile section:**
-  - Display name (text input, max 50 chars)
-  - Bio (textarea, max 160 chars, with character counter)
-  - Avatar URL (text input with URL validation, small preview thumbnail)
-- **Links section:**
-  - List of current links with drag handles (dnd-kit)
-  - Each link item shows: drag handle, title, URL, delete button
-  - "Add Link" button opens inline form (title + URL fields)
-  - "Add Header" button adds a text header item
-  - "Add Divider" button adds a visual divider item
-  - Items are sortable via drag-and-drop
-- **Save button** at the bottom — disabled when no changes, shows loading state during save, success/error feedback via toast notification
+**Verification methods:** `photo`, `gps`, `peer_verification`, `admin_approval`
 
-**Preview Panel (right side on desktop):**
-- Renders the public page exactly as it will appear
-- Updates in real-time as the user types/reorders (client-side state, not DB)
-- Displayed inside a phone-frame mockup for context
-- Shows the currently selected theme
+### 7.5 Admin Dashboard
 
-**Layout Modes:**
-- **Desktop (≥1024px):** Side-by-side with resizable panels. Toggle buttons in toolbar to: show both panels, show editor only, show preview only.
-- **Mobile (<1024px):** Tab toggle between "Edit" and "Preview" views.
+- Real-time coin distribution totals by type
+- Active vs. inactive volunteers
+- Task completion rates and average time
+- Distribution history with full audit trail
+- Export-ready impact report (JSON/CSV)
 
-### 7.4 Theme System
+### 7.6 Volunteer Dashboard
 
-**Accessible from:** Theme picker in the editor (above or within the editor panel)
+- Hours worked, tasks completed, BEACON earned (current month)
+- Achievement badges (e.g., "Activity Expert" at 100 verifications)
+- Weekly progress chart (Recharts)
+- Upcoming task deadlines
 
-4 themes that vary in both visual style and layout structure:
+### 7.7 Audit Logging
 
-| Theme | Vibe | Layout Notes |
-|---|---|---|
-| **Minimal** | Clean, white/light gray, sans-serif, lots of whitespace | Centered single-column, simple rectangular link buttons, small avatar |
-| **Dark** | Dark backgrounds, light text, neon/accent colors, modern feel | Centered column, rounded pill-shaped link buttons, larger avatar with glow effect |
-| **Colorful** | Vibrant gradients, playful, rounded shapes, bold typography | Wider card-based links, avatar with colored border ring, gradient background |
-| **Professional** | Muted tones, serif headings, structured, business-card feel | Two-column layout on desktop (avatar/bio left, links right), subtle shadows, traditional buttons |
-
-**Theme Picker UI:**
-- Horizontal row of theme thumbnail cards
-- Clicking a theme instantly updates the preview panel
-- Selected theme is visually highlighted
-- Theme selection is saved with the profile
-
-### 7.5 Public Pages + SEO
-
-**Route:** `/[slug]` (dynamic, server-rendered)
-
-- Fetches user profile, links, and theme from the database at request time
-- Renders the full page server-side with the selected theme component
-- Injects OG meta tags into `<head>`:
-  - `og:title` → User's display name
-  - `og:description` → User's bio
-  - `og:image` → User's avatar URL (or a generated fallback)
-  - `og:url` → Full canonical URL
-  - `twitter:card` → `summary`
-- Each link is a clickable `<a>` tag that:
-  1. Fires a click-tracking request to `/api/click` (via `navigator.sendBeacon` or fetch)
-  2. Then navigates to the target URL
-- Returns 404 for non-existent slugs with a friendly "Page not found" message
-
-### 7.6 Click Analytics
-
-**Tracking endpoint:** `POST /api/click`
-
-- Accepts: `{ linkId: string }`
-- Records: link ID, timestamp, (IP hash for rate limiting — not stored for analytics)
-- Rate limited: max 1 click per link per IP per 10 seconds (prevent spam)
-
-**Dashboard route:** `/analytics`
-
-- **Summary cards:** Total clicks (all time), clicks this week, number of active links
-- **Top links table:** Ranked list of links by total clicks, showing title, URL, click count
-- **Time-series chart:** Line chart showing total clicks per day over the last 30 days
-  - Toggle between 7-day / 30-day / 90-day views
-  - Uses a lightweight chart library (e.g., Recharts, which works well with shadcn)
-- **Per-link breakdown:** Expandable rows in the top links table showing that link's daily clicks
+Every write operation records: `actor_id`, `actor_role`, `action`, `entity_type`, `entity_id`, `changes_json`, `ip_address`, `timestamp`. Immutable; no delete endpoint.
 
 ---
 
 ## 8. Technology Stack
 
-### Core Framework
-| Technology | Version | Purpose |
-|---|---|---|
-| **Next.js** | 15.x | Full-stack React framework (App Router, SSR, API Routes) |
-| **React** | 19.x | UI library |
-| **TypeScript** | 5.x | Type safety (strict mode) |
+### 8.1 Current Stack (MVP Web App)
 
-### Styling & UI
-| Technology | Purpose |
-|---|---|
-| **Tailwind CSS** 4.x | Utility-first CSS framework |
-| **shadcn/ui** | Accessible, customizable component library |
-| **CSS Transitions** | Animations (no extra motion libraries) |
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Framework | Next.js (App Router) | 15.5.x |
+| Language | TypeScript | ^5 |
+| UI Components | shadcn/ui + Radix UI | latest |
+| Styling | Tailwind CSS | ^4 |
+| ORM | Drizzle ORM | ^0.45.x |
+| Database | Neon Serverless PostgreSQL | ^1.0.x |
+| Auth | Neon Auth + JWT | ^0.1.0-beta |
+| Charts | Recharts | ^3.7.x |
+| Drag-and-Drop | @dnd-kit | ^6.3.x |
+| Validation | Zod | ^4.3.x |
+| Testing | Vitest + Testing Library | ^4.0.x |
+| Linting/Format | Biome | 2.2.0 |
+| Notifications | Sonner | ^2.0.x |
 
-### Database & Auth
-| Technology | Purpose |
-|---|---|
-| **Neon** | Serverless Postgres (database hosting) |
-| **Neon Auth** | Managed authentication (Better Auth-based) |
-| **@neondatabase/auth** | Neon Auth SDK for Next.js |
-| **Drizzle ORM** | Type-safe database queries and migrations |
-| **drizzle-kit** | Schema migration tooling |
+### 8.2 Future Stack (Phase 3–4)
 
-### Key Libraries
-| Library | Purpose |
-|---|---|
-| **@dnd-kit/core** + **@dnd-kit/sortable** | Drag-and-drop link reordering |
-| **Recharts** | Charts for analytics dashboard |
-| **zod** | Runtime schema validation (forms, API inputs) |
+| Layer | Technology |
+|-------|-----------|
+| Mobile App | React Native + Expo |
+| Blockchain | Polygon (MATIC) ERC-20 |
+| Smart Contracts | Solidity ^0.8.19 + Hardhat |
+| Contract Libraries | OpenZeppelin (AccessControl, Pausable, ReentrancyGuard) |
+| Wallet SDK | ethers.js / WalletConnect |
+| Proof Storage | IPFS |
+| Key Management | AWS KMS / HSM |
+| Caching | Redis |
+| Cloud | AWS (ECS, API Gateway, CloudFront, Secrets Manager) |
+| Monitoring | DataDog + CloudWatch |
+| Price Oracle | Chainlink |
 
-### Dev Tooling
-| Tool | Purpose |
-|---|---|
-| **Biome** | Linting + formatting (replaces ESLint + Prettier) |
-| **Vitest** | Unit testing |
-| **agent-browser** | E2E testing (Playwright-based CLI) |
+### 8.3 Token Reserve Strategy (Post-MVP)
 
-### Deployment
-| Service | Purpose |
-|---|---|
-| **Vercel** | Hosting, CI/CD, edge functions |
-| **Neon** | Managed Postgres (serverless, auto-scaling) |
+Recommended: **Hybrid Conservative Model** — 1 BEACON = $0.85 USD
+
+| Asset | Allocation | Rationale |
+|-------|-----------|-----------|
+| Bitcoin (BTC) | 40% | Inflation hedge, store of value |
+| Ethereum (ETH) | 30% | Smart contract utility |
+| Stablecoins (USDC) | 20% | Short-term stability |
+| Solana (SOL) | 10% | Low-fee transactions |
+
+Target: 5–10% annual BEACON appreciation. Floor guarantee: $0.80 minimum value. 7-day price smoothing to prevent volatility spikes.
 
 ---
 
 ## 9. Security & Configuration
 
-### Authentication & Authorization
+### 9.1 Authentication
 
-- **Neon Auth** handles all authentication flows:
-  - Email/password registration and login
-  - Google OAuth (using Neon Auth's built-in Google credentials for dev, custom credentials for production)
-  - Session management via signed cookies (cached for 5 minutes by default)
-- **Authorization:** Middleware protects `/editor`, `/analytics`, `/settings` routes — redirects to `/login` if unauthenticated
-- **Data isolation:** All queries filter by the authenticated user's ID. Users can only read/write their own profile and links.
+- JWT access tokens (15-minute expiry) + refresh tokens (7-day expiry)
+- Role-based access control: `user | volunteer | partner | admin`
+- Admin endpoints require 2FA (TOTP)
+- Admin coin distributions >100 BEACON require dual-admin approval
 
-### Rate Limiting
+### 9.2 Environment Variables
 
-- **API routes:** Simple in-memory rate limiting (or Vercel KV if needed)
-  - `/api/click`: 60 requests/minute per IP
-  - `/api/profile`, `/api/links`: 30 requests/minute per user
-  - `/api/auth/*`: 10 requests/minute per IP (login/signup)
-- **Click deduplication:** Ignore duplicate clicks on the same link from the same IP within 10 seconds
+```bash
+# Database
+DATABASE_URL=postgresql://...@neon.tech/beacon
 
-### Configuration (Environment Variables)
-
-```env
-# Neon Database
-DATABASE_URL=                    # Neon Postgres connection string
-
-# Neon Auth
-NEON_AUTH_BASE_URL=              # Neon Auth endpoint URL
-NEON_AUTH_COOKIE_SECRET=         # Secret for signing session cookies
-
-# Google OAuth (production)
-GOOGLE_CLIENT_ID=                # Google OAuth client ID
-GOOGLE_CLIENT_SECRET=            # Google OAuth client secret
+# Authentication
+JWT_SECRET=...
+JWT_REFRESH_SECRET=...
+NEON_AUTH_SECRET=...
 
 # App
-NEXT_PUBLIC_APP_URL=             # Public app URL (e.g., https://yourdomain.com)
+NEXT_PUBLIC_APP_URL=https://beacon.projectbeacon.org
+NODE_ENV=production
+
+# Blockchain (Phase 4)
+POLYGON_RPC_URL=https://polygon-rpc.com
+BEACON_TOKEN_ADDRESS=0x...
+ACTIVITY_VALIDATOR_ADDRESS=0x...
+ADMIN_WALLET_PRIVATE_KEY=...  # AWS KMS-managed in production
 ```
 
-### Security Scope
+### 9.3 Security Scope
 
-**In scope:**
-- ✅ Input sanitization (XSS prevention on bio, link titles/URLs)
-- ✅ URL validation for links (must be valid HTTP/HTTPS URLs)
-- ✅ Slug validation (alphanumeric + hyphens only)
-- ✅ CSRF protection (built into Neon Auth / Next.js)
-- ✅ Rate limiting on all API endpoints
+**In Scope (MVP)**
+- Input validation via Zod on all endpoints
+- SQL injection prevention via Drizzle parameterized queries
+- CSRF protection via Next.js server actions
+- Rate limiting: 100 req/min (general), 5 req/min (auth), 10 req/min (distributions)
+- Audit logging for all admin actions
+- Encrypted passwords (bcrypt)
 
-**Out of scope for MVP:**
-- ❌ Content moderation / link scanning
-- ❌ Two-factor authentication
-- ❌ IP allowlisting
-- ❌ Advanced bot protection (CAPTCHA, etc.)
+**In Scope (Phase 4)**
+- Smart contract reentrancy protection (OpenZeppelin NonReentrant)
+- Multi-signature wallets for reserve fund management
+- Time-locked contract upgrades (48-hour delay)
+- Regular smart contract security audits
+- AML compliance hooks
+
+**Out of Scope (MVP)**
+- DDoS mitigation (handled by Vercel/CDN layer)
+- Formal smart contract audits (pre-blockchain)
 
 ---
 
-## 10. Database Schema
+## 10. API Specification
 
-### Tables
-
-```sql
--- Users table is managed by Neon Auth (neon_auth schema)
--- It provides: id, email, name, image, created_at, updated_at
-
--- Profiles (extends Neon Auth user)
-CREATE TABLE profiles (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       TEXT NOT NULL UNIQUE REFERENCES neon_auth.users(id) ON DELETE CASCADE,
-  slug          TEXT NOT NULL UNIQUE,
-  display_name  TEXT NOT NULL DEFAULT '',
-  bio           TEXT NOT NULL DEFAULT '',
-  avatar_url    TEXT NOT NULL DEFAULT '',
-  theme         TEXT NOT NULL DEFAULT 'minimal',
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE UNIQUE INDEX idx_profiles_slug ON profiles(slug);
-CREATE INDEX idx_profiles_user_id ON profiles(user_id);
-
--- Link items (links, headers, dividers)
-CREATE TABLE link_items (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  profile_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  type          TEXT NOT NULL DEFAULT 'link',  -- 'link' | 'header' | 'divider'
-  title         TEXT NOT NULL DEFAULT '',
-  url           TEXT NOT NULL DEFAULT '',       -- empty for headers/dividers
-  sort_order    INTEGER NOT NULL DEFAULT 0,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_link_items_profile_id ON link_items(profile_id);
-
--- Click events
-CREATE TABLE click_events (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  link_item_id  UUID NOT NULL REFERENCES link_items(id) ON DELETE CASCADE,
-  clicked_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_click_events_link_item_id ON click_events(link_item_id);
-CREATE INDEX idx_click_events_clicked_at ON click_events(clicked_at);
+### Base URL
+```
+https://api.projectbeacon.org/v1
 ```
 
-### Drizzle Schema (TypeScript)
+### Auth Header
+```
+Authorization: Bearer {jwt-access-token}
+```
 
-The above SQL will be represented as Drizzle schema definitions in `src/lib/db/schema.ts`, using `pgTable`, with proper TypeScript types inferred via `InferSelectModel` and `InferInsertModel`.
-
----
-
-## 11. API Specification
-
-### Profile
-
-**GET `/api/profile`** — Get current user's profile
-- Auth: Required
-- Response: `{ profile: Profile, links: LinkItem[] }`
-
-**PUT `/api/profile`** — Update current user's profile
-- Auth: Required
-- Body: `{ displayName: string, bio: string, avatarUrl: string, theme: string }`
-- Validation: Zod schema
-- Response: `{ profile: Profile }`
-
-### Links
-
-**POST `/api/links`** — Add a new link item
-- Auth: Required
-- Body: `{ type: 'link' | 'header' | 'divider', title?: string, url?: string }`
-- Response: `{ link: LinkItem }`
-
-**DELETE `/api/links/[id]`** — Remove a link item
-- Auth: Required
-- Response: `{ success: true }`
-
-**PUT `/api/links/reorder`** — Reorder all link items
-- Auth: Required
-- Body: `{ items: { id: string, sortOrder: number }[] }`
-- Response: `{ success: true }`
-
-### Click Tracking
-
-**POST `/api/click`** — Record a link click (called from public pages)
-- Auth: None (public)
-- Body: `{ linkId: string }`
-- Rate limited: 60/min per IP, 10-second dedup per link per IP
-- Response: `{ success: true }`
-
-### Analytics
-
-**GET `/api/analytics`** — Get analytics for current user's links
-- Auth: Required
-- Query params: `?period=7d|30d|90d`
-- Response:
+### Standard Response Envelope
 ```json
 {
-  "summary": {
-    "totalClicks": 1234,
-    "clicksThisWeek": 89,
-    "activeLinks": 8
-  },
-  "topLinks": [
-    { "id": "...", "title": "YouTube", "url": "...", "clicks": 342 }
-  ],
-  "timeSeries": [
-    { "date": "2026-02-19", "clicks": 45 },
-    { "date": "2026-02-20", "clicks": 52 }
-  ]
+  "success": true,
+  "data": { ... },
+  "meta": { "timestamp": "2026-02-28T00:00:00Z", "version": "1.0.0" }
 }
 ```
 
-### Slug Availability
+### Core Endpoints (MVP)
 
-**GET `/api/slug/check?slug=cole`** — Check if slug is available
-- Auth: None (used during signup)
-- Response: `{ available: boolean }`
+| Method | Path | Role | Description |
+|--------|------|------|-------------|
+| `POST` | `/auth/register` | Public | Register device/user |
+| `POST` | `/auth/login` | Public | Login, receive JWT |
+| `POST` | `/auth/refresh` | Authenticated | Refresh access token |
+| `POST` | `/volunteers/register` | Public | Register volunteer |
+| `POST` | `/volunteers/login` | Public | Volunteer login |
+| `GET` | `/volunteers/profile` | Volunteer | Get own profile |
+| `PUT` | `/volunteers/profile` | Volunteer | Update profile |
+| `GET` | `/volunteers/tasks/available` | Volunteer | Browse open tasks |
+| `POST` | `/volunteers/tasks/:id/accept` | Volunteer | Accept a task |
+| `PUT` | `/volunteers/tasks/:id/progress` | Volunteer | Update progress |
+| `POST` | `/volunteers/tasks/:id/complete` | Volunteer | Submit completion |
+| `GET` | `/volunteers/dashboard/stats` | Volunteer | Dashboard data |
+| `POST` | `/admin/login` | Admin | Admin login (+ 2FA) |
+| `POST` | `/admin/distribute-coins` | Admin | Single distribution |
+| `POST` | `/admin/distribute-coins/bulk` | Admin | Bulk distribution |
+| `GET` | `/admin/distributions` | Admin | Distribution history |
+| `POST` | `/admin/tasks` | Admin | Create task |
+| `POST` | `/admin/tasks/:id/assign` | Admin | Assign to volunteer |
+| `POST` | `/admin/tasks/:id/approve` | Admin | Approve completion |
+| `GET` | `/admin/dashboard/stats` | Admin | Admin dashboard data |
+| `GET` | `/admin/reports/impact` | Admin | Impact report |
+| `GET` | `/admin/audit-log` | Admin | Immutable audit log |
+
+### Error Codes
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| `AUTH_001` | 401 | Invalid credentials |
+| `AUTH_002` | 401 | Token expired |
+| `AUTH_003` | 403 | Insufficient permissions |
+| `ADMIN_004` | 400 | Coin distribution limit exceeded |
+| `DISTRIBUTION_003` | 400 | Daily cap exceeded for recipient |
+| `TASK_002` | 409 | Task already assigned |
+| `VOLUNTEER_004` | 409 | Email already registered |
+
+---
+
+## 11. Database Schema (Key Tables)
+
+```sql
+-- Volunteers / Staff
+CREATE TABLE volunteers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  volunteer_id VARCHAR(20) UNIQUE NOT NULL,  -- VOL-4A4D001
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  organization VARCHAR(255),
+  skills JSONB DEFAULT '[]',
+  availability JSONB DEFAULT '{}',
+  role VARCHAR(20) DEFAULT 'volunteer',      -- volunteer | admin
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Admins (extends volunteers)
+CREATE TABLE admins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  volunteer_id UUID REFERENCES volunteers(id),
+  admin_id VARCHAR(20) UNIQUE NOT NULL,      -- ADMIN-4142001
+  admin_level VARCHAR(20) DEFAULT 'standard',
+  can_distribute_coins BOOLEAN DEFAULT true,
+  max_coin_distribution_amount DECIMAL(18,8) DEFAULT 500,
+  two_factor_enabled BOOLEAN DEFAULT false,
+  two_factor_secret VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Users (unsheltered individuals)
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  unique_identifier VARCHAR(255) UNIQUE NOT NULL,  -- QR code
+  wallet_address VARCHAR(42) UNIQUE,
+  coin_balance DECIMAL(18,8) DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  privacy_settings JSONB DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Tasks
+CREATE TABLE tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(50),
+  priority VARCHAR(20) DEFAULT 'medium',
+  status VARCHAR(30) DEFAULT 'open',
+  estimated_hours DECIMAL(5,2),
+  reward_amount DECIMAL(18,8),
+  due_date TIMESTAMP,
+  required_skills JSONB DEFAULT '[]',
+  created_by UUID REFERENCES admins(id),
+  assigned_to UUID REFERENCES volunteers(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Coin Distributions
+CREATE TABLE coin_distributions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  recipient_id UUID REFERENCES users(id),
+  volunteer_id UUID REFERENCES volunteers(id),
+  task_id UUID REFERENCES tasks(id),
+  admin_id UUID REFERENCES admins(id),
+  amount DECIMAL(18,8) NOT NULL,
+  distribution_type VARCHAR(50) NOT NULL,
+  description TEXT,
+  approval_status VARCHAR(20) DEFAULT 'approved',
+  blockchain_hash VARCHAR(66),
+  distribution_date TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Audit Log (immutable)
+CREATE TABLE audit_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id UUID NOT NULL,
+  actor_role VARCHAR(20) NOT NULL,
+  action VARCHAR(100) NOT NULL,
+  entity_type VARCHAR(50),
+  entity_id UUID,
+  changes_json JSONB,
+  ip_address INET,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
 ---
 
 ## 12. Success Criteria
 
-### MVP Success Definition
+### MVP Definition of Done
 
-The MVP is complete when a user can sign up, build a link page with a chosen theme, share their public URL, and view click analytics — all validated by passing E2E tests covering every user journey.
-
-### Functional Requirements
-
-- ✅ User can sign up with email/password and choose a unique slug
-- ✅ User can sign in with Google OAuth
-- ✅ User can edit display name, bio, and avatar URL
-- ✅ User can add, remove, and reorder links via drag-and-drop
-- ✅ User can add section headers and dividers
-- ✅ User can select from 4 themes with instant live preview
-- ✅ Editor shows side-by-side layout on desktop with toggle options
-- ✅ Editor shows toggle mode on mobile
-- ✅ Saving profile persists all changes to database
-- ✅ Public page at `/<slug>` renders with selected theme (SSR)
-- ✅ Public page includes correct OG meta tags
-- ✅ Clicking a link on the public page tracks the click
-- ✅ Analytics dashboard shows click counts per link
-- ✅ Analytics dashboard shows time-series chart (7d/30d/90d)
-- ✅ Marketing landing page exists at `/`
-- ✅ All protected routes redirect to login when unauthenticated
-- ✅ Rate limiting prevents abuse on API endpoints
+A successful MVP delivers:
+- ✅ Admins can log in with 2FA and distribute BEACON coins to users
+- ✅ Volunteers can register, accept tasks, and submit completions
+- ✅ Admins can review and approve volunteer task completions
+- ✅ All coin distributions are logged with full audit trail
+- ✅ Admin dashboard renders distribution summaries and volunteer metrics
+- ✅ Volunteer dashboard shows hours, earnings, and progress
+- ✅ Bulk distribution handles 100 recipients without timeout
+- ✅ JWT auth with refresh tokens works end-to-end
+- ✅ Vitest coverage ≥ 70% on service layer
+- ✅ Deployment to Vercel + Neon is one-command via CI/CD
 
 ### Quality Indicators
 
-- TypeScript strict mode with zero type errors
-- Biome passes with zero lint/format warnings
-- Vitest unit test coverage on all utility functions and API logic
-- agent-browser E2E tests pass for every user journey
-- Lighthouse performance score ≥ 90 on public pages
-- All pages responsive from 320px to 1920px
+- Page load times < 2 seconds on 4G mobile
+- Zero PII exposed in API responses (masked identifiers only)
+- All admin actions produce audit log entries
+- Rate limiting blocks >100 req/min per user
+- No SQL injection surface areas (Drizzle parameterized queries enforced)
 
-### User Experience Goals
+### UX Goals
 
-- Signup-to-published page in under 2 minutes
-- Theme switching feels instant (no loading states)
-- Drag-and-drop reordering is smooth and intuitive
-- Public page loads in under 1 second (server-rendered)
+- New volunteer completes registration in < 3 minutes
+- Admin distributes coins to a single user in < 60 seconds
+- Dashboard loads with no loading spinners > 500ms (server-side rendering)
+- Mobile-responsive layout functional on 375px viewport
 
 ---
 
 ## 13. Implementation Phases
 
-### Phase 1: Profile Editor + Live Preview
+### Phase 1 — Foundation (Weeks 1–4)
 
-**Goal:** Users can sign up, log in, and build their link page with a live preview.
+**Goal:** Working auth system, database schema, and basic admin/volunteer CRUD.
 
-**Deliverables:**
-- ✅ Project scaffolding (Next.js + Tailwind + shadcn/ui + Biome + Vitest)
-- ✅ Neon database setup + Drizzle schema + migrations
-- ✅ Neon Auth integration (email/password + Google OAuth)
-- ✅ Signup page with slug selection and real-time availability check
-- ✅ Login page (email/password + Google OAuth)
-- ✅ Auth middleware protecting dashboard routes
-- ✅ Profile editor form (name, bio, avatar URL)
-- ✅ Link management (add, remove, reorder with dnd-kit)
-- ✅ Header and divider support
-- ✅ Live preview panel (default "Minimal" theme)
-- ✅ Side-by-side layout (desktop) with editor-only/preview-only toggles
-- ✅ Toggle mode (mobile)
-- ✅ Explicit save button with toast feedback
-- ✅ Unit tests for validation logic, API handlers
-- ✅ E2E tests: signup flow, login flow, profile editing, link CRUD, drag-and-drop reorder
+- ✅ Database schema (Drizzle) — all core tables with migrations
+- ✅ Volunteer registration + unique ID generation (VOL-x###)
+- ✅ Admin login with 2FA (TOTP)
+- ✅ JWT auth middleware + route guards
+- ✅ Role-based access (volunteer vs. admin dashboard routes)
+- ✅ Audit logging service (all mutations)
+- ✅ Basic volunteer profile CRUD
 
-**Validation:**
-- User can sign up, add 5 links + 1 header + 1 divider, reorder them, save, refresh, and see persisted data
-- Preview updates in real-time without saving
-- All E2E tests pass via agent-browser
+**Validation:** Auth flows tested end-to-end. `/admin` routes inaccessible to volunteer role.
 
 ---
 
-### Phase 2: Theme System
+### Phase 2 — Core Operations (Weeks 5–9)
 
-**Goal:** Users can choose from 4 distinct, layout-varying themes with instant preview.
+**Goal:** Full coin distribution engine, task management, and activity verification.
 
-**Deliverables:**
-- ✅ 4 theme components: Minimal, Dark, Colorful, Professional
-- ✅ Each theme has its own layout structure and visual style
-- ✅ Theme picker UI with thumbnail previews
-- ✅ Instant theme switching in the live preview
-- ✅ Theme selection persisted to database
-- ✅ All themes responsive (320px – 1920px)
-- ✅ Smooth CSS transitions between themes
-- ✅ Unit tests for theme rendering logic
-- ✅ E2E tests: theme selection, preview updates, persistence after save and reload
+- ✅ Single and bulk coin distribution endpoints
+- ✅ Daily earning cap enforcement (50 BEACON/day)
+- ✅ Admin coin distribution limit enforcement
+- ✅ Task lifecycle (create → assign → complete → approve)
+- ✅ Activity submission with photo/GPS evidence upload
+- ✅ Activity verification queue for volunteers
+- ✅ Admin and volunteer dashboards with Recharts visualizations
+- ✅ Impact report endpoint (JSON + CSV export)
 
-**Validation:**
-- Switching between all 4 themes updates the preview instantly
-- Theme persists after save → reload
-- Each theme looks correct and distinct on mobile and desktop
-- All E2E tests pass via agent-browser
+**Validation:** 500 simulated distributions complete within 10 seconds. All task state transitions produce audit log entries.
 
 ---
 
-### Phase 3: Public URLs + SEO
+### Phase 3 — Mobile Consumer App (Weeks 10–18)
 
-**Goal:** Each user gets a public page at `/<slug>` with proper SEO and social sharing support.
+**Goal:** React Native app for unsheltered individuals — wallet, earning, and map.
 
-**Deliverables:**
-- ✅ Dynamic `[slug]` route with server-side rendering
-- ✅ Public page renders profile + links with the selected theme
-- ✅ OG meta tags (`og:title`, `og:description`, `og:image`, `og:url`, `twitter:card`)
-- ✅ 404 handling for non-existent slugs
-- ✅ Reserved slug protection (prevent registration of system routes)
-- ✅ Marketing landing page at `/` (hero, features, CTAs)
-- ✅ Slug change in user settings
-- ✅ Canonical URL in `<head>`
-- ✅ Unit tests for slug validation, OG tag generation
-- ✅ E2E tests: public page rendering, correct theme display, OG tag verification, 404 page, landing page navigation, slug change flow
+- ✅ React Native + Expo project setup
+- ✅ Anonymous registration (device ID, no email/SSN)
+- ✅ QR code identity and physical card fallback
+- ✅ Digital wallet (balance, transaction history)
+- ✅ Available activities map (location-based, geofenced)
+- ✅ Activity submission (photo + GPS + notes)
+- ✅ Daily check-in with streak tracking
+- ✅ Partner directory with service costs in BEACON
+- ✅ Service redemption (generates BEACON-XXXXXX code)
+- ✅ Push notifications for verification results
 
-**Validation:**
-- Visiting `/<slug>` renders the correct profile with the correct theme
-- Sharing the URL on social media shows correct preview (OG tags)
-- Non-existent slugs show a 404 page
-- Landing page loads and CTAs navigate correctly
-- All E2E tests pass via agent-browser
+**Validation:** New user onboarded and earns first BEACON within 5 minutes. Redemption code generated and scannable at partner POS.
 
 ---
 
-### Phase 4: Click Analytics
+### Phase 4 — Blockchain + Partner Portal (Weeks 19–30)
 
-**Goal:** Track clicks on public page links and display analytics in a dashboard.
+**Goal:** Live Polygon deployment, partner onboarding, and crypto-backed reserves.
 
-**Deliverables:**
-- ✅ Click tracking endpoint (`POST /api/click`)
-- ✅ Click recording on public page link clicks (via `sendBeacon` or fetch)
-- ✅ Rate limiting on click endpoint (60/min per IP, 10-sec dedup)
-- ✅ Analytics API endpoint with period filtering
-- ✅ Analytics dashboard page (`/analytics`)
-- ✅ Summary cards (total clicks, this week, active links)
-- ✅ Top links table with click counts
-- ✅ Time-series line chart (7d / 30d / 90d toggle)
-- ✅ Per-link daily breakdown (expandable rows)
-- ✅ Unit tests for analytics aggregation queries, rate limiting logic
-- ✅ E2E tests: click tracking fires on public page, analytics dashboard shows correct data, period toggle works, chart renders
+- ✅ BeaconToken ERC-20 deployed to Polygon mainnet
+- ✅ ActivityValidator smart contract live
+- ✅ ServiceRedemption smart contract live
+- ✅ IPFS proof storage for activity evidence
+- ✅ Multi-sig admin wallets (3-of-5)
+- ✅ Partner onboarding portal (web)
+- ✅ Partner QR redemption scanning app
+- ✅ Automated crypto-to-fiat settlement for partners
+- ✅ Crypto reserve management dashboard (BTC/ETH/USDC/SOL)
+- ✅ Chainlink price oracle integration
+- ✅ Smart contract security audit (professional)
+- ✅ $0.85 USD valuation model implementation
 
-**Validation:**
-- Clicking links on a public page increments the count
-- Analytics dashboard reflects clicks accurately
-- Time-series chart displays correctly for all period options
-- Rate limiting prevents click spam
-- All E2E tests pass via agent-browser
+**Validation:** End-to-end earn-to-spend flow on Polygon testnet (Mumbai) passing full Hardhat test suite. Partner settlement processed within 24 hours.
 
 ---
 
 ## 14. Future Considerations
 
-### Post-MVP Enhancements
-- **File upload for avatars** — Use Vercel Blob or Cloudflare R2 for image storage
-- **Custom domains** — Allow users to point their own domain to their page
-- **Embed support** — YouTube, Spotify, SoundCloud embeds inline in the link list
-- **Auto-save with draft/publish** — Auto-save changes as draft, explicit publish to go live
-- **Link scheduling** — Show/hide links based on date ranges
-- **More themes** — Community-contributed themes, custom color overrides
+### Post-MVP Platform Enhancements
+
+- **Gamification Engine** — Achievement badges, leaderboards, seasonal challenges. "Activity Expert" (100 verifications), "Community Champion" (50 BEACON donated), etc.
+- **Savings Goals** — Users set target amounts (e.g., 230 BEACON for a hostel night) and the app tracks progress with projected timelines.
+- **Skill Development Tracks** — Partner with job training centers; course completions earn higher-rate BEACON (12–25 BEACON/hour vs. base 5).
+- **Multi-Language Support** — Spanish, Creole (per Orlando demographics). Design for low-literacy icons.
+- **Community Governance** — Governance token for long-term users to vote on reserve allocation changes and major platform decisions.
+
+### Tokenomics Evolution
+
+- Transition from 1:1 USD peg to **$0.85 model** at launch for 118% revenue increase
+- Year 2: Introduce gradual appreciation schedule (+3.5%/year) toward USD parity by Year 5
+- Year 3: Activate crypto-backed reserves with Chainlink oracle price smoothing
+- Year 4+: Automated rebalancing algorithms; DeFi yield farming on stable portion of reserves
 
 ### Integration Opportunities
-- **Social login expansion** — GitHub, Twitter/X, Discord OAuth
-- **Analytics export** — CSV/JSON download of click data
-- **Webhook notifications** — Notify external services on click milestones
-- **API access** — Public API for programmatic profile management
 
-### Advanced Features
-- **Admin panel** — User management, content moderation, system stats
-- **A/B testing** — Test different link orders or themes for click optimization
-- **Rich analytics** — Referrer tracking, geographic data, device breakdown
-- **Custom CSS** — Per-user CSS overrides for advanced customization
-- **Team accounts** — Shared pages managed by multiple users
+- **LYNX (Orlando public transit)** — Direct BEACON-to-bus-pass redemption API
+- **Second Harvest Food Bank** — POS integration for hot meal redemptions
+- **Orlando Health** — Clinic co-pay assistance redemption
+- **Florida Department of Economic Opportunity** — Employment tracking integration
+- **Coalition for the Homeless of Central Florida** — Advisory board + data sharing
+
+### Multi-City Expansion
+
+Platform designed for geographic replication: Orlando → Tampa → Jacksonville → statewide. Each city gets isolated BEACON supply, local partner network, and city-branded token name (e.g., "TampaCoin").
 
 ---
 
 ## 15. Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| **Neon Auth is relatively new** — Less community support and documentation compared to established auth solutions. | Medium | Neon Auth is built on Better Auth, which has extensive docs. Fall back to Better Auth docs when Neon-specific docs are sparse. Keep auth logic isolated so it can be swapped if needed. |
-| **Click tracking volume** — Popular pages could generate high write volume to the `click_events` table. | Medium | Use `navigator.sendBeacon` (non-blocking). Rate limit aggressively. Consider batching writes or a summary table for high-volume pages in a future phase. Neon's serverless auto-scaling helps absorb bursts. |
-| **Slug collisions with app routes** — User-chosen slugs could conflict with app routes like `/login` or `/api`. | High | Maintain a strict reserved-slugs list checked at signup. The `[slug]` catch-all route should be the lowest priority in Next.js routing (place it last). |
-| **Theme layout complexity** — 4 themes with different layouts is significantly more work than CSS-only themes. | Medium | Start with shared base components and have each theme compose them differently. Define a clear `ThemeProps` interface so all themes receive the same data. Build Minimal first as the reference, then diverge. |
-| **E2E test reliability** — Browser-based E2E tests can be flaky, especially with auth flows and drag-and-drop. | Medium | Use agent-browser's `wait` commands extensively. Isolate test data per run. For drag-and-drop, test the reorder API directly as a unit test and use E2E only for the happy path. |
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|-----------|
+| **Regulatory scrutiny of BEACON as a security** | Medium | High | Legal opinion establishing utility token status before Phase 4 launch; no investment return promises; closed-loop design prevents speculation; retain crypto-specialized counsel |
+| **Low adoption among unsheltered users** | Medium | High | Extensive community research phase (similar to Austin MyPass 2-year approach); advisory board of homeless individuals; physical card fallback; multi-language support from day one |
+| **Smart contract exploit / fund loss** | Low | Critical | Professional audit pre-mainnet; OpenZeppelin battle-tested libraries; multi-sig wallets; emergency pause mechanism; 20% stablecoin reserve minimum; insurance fund (10% of fees) |
+| **Partner network too small at consumer launch** | High | Medium | Onboard Coalition for the Homeless and Christian Service Center as anchor partners pre-launch; offer 0% platform fee for first 6 months; guaranteed settlement removes friction |
+| **Grant funding gap before self-sustaining revenue** | Medium | High | 15% service fee model reaches break-even at ~420 active users ($18,750/month); pursue federal homeless services grants ($500K) and corporate CSR funding in parallel; 13-month reserve fund from initial raise |
 
 ---
 
 ## 16. Appendix
 
-### Key Dependencies
+### Related Documents
 
-| Package | Docs |
-|---|---|
-| Next.js | https://nextjs.org/docs |
-| Tailwind CSS | https://tailwindcss.com/docs |
-| shadcn/ui | https://ui.shadcn.com |
-| Drizzle ORM | https://orm.drizzle.team/docs |
-| Neon | https://neon.com/docs |
-| Neon Auth | https://neon.com/docs/auth/overview |
-| dnd-kit | https://dndkit.com |
-| Recharts | https://recharts.org |
-| Zod | https://zod.dev |
-| Biome | https://biomejs.dev |
-| Vitest | https://vitest.dev |
+| Document | Location | Description |
+|----------|----------|-------------|
+| API Specification | `stuff/API_SPECIFICATION.md` | Full REST API reference |
+| Volunteer API | `stuff/VOLUNTEER_API_SPECIFICATION.md` | Volunteer & admin endpoints |
+| Technical Architecture | `stuff/TECHNICAL_ARCHITECTURE.md` | System design details |
+| Blockchain Integration | `stuff/BLOCKCHAIN_INTEGRATION.md` | Smart contracts & integration |
+| Tokenomics | `stuff/TOKENOMICS_AND_EXCHANGE_RATES.md` | Exchange rates & fee model |
+| Alternative Valuations | `stuff/ALTERNATIVE_COIN_VALUATIONS.md` | $0.85 vs $1.00 BEACON model analysis |
+| Crypto Backing | `stuff/CRYPTO_BACKING_STRATEGIES.md` | Reserve management strategies |
+| Competitive Research | `stuff/COMPETITIVE_RESEARCH.md` | GoodDollar, Circles UBI, Austin MyPass analysis |
 
-### Reference Implementations
+### Key External References
 
-- [LinkStack](https://linkstack.org/) — Full-featured self-hosted Linktree alternative (PHP/Laravel)
-- [LittleLink-Server](https://github.com/techno-tim/littlelink-server) — Lightweight Node.js alternative
-- [LibreLinks](https://github.com/urdadx/librelinks) — Open-source Next.js link-in-bio tool
-- [OpenBento](https://github.com/syntax-syndicate/openbento-linkedin-bio-builder) — Bento-grid style bio page builder
+- [Polygon Network](https://polygon.technology) — Primary blockchain
+- [OpenZeppelin Contracts](https://openzeppelin.com/contracts/) — Smart contract security
+- [GoodDollar](https://gooddollar.org) — UBI blockchain precedent (300K users)
+- [Austin MyPass](https://mypass.io) — Digital identity for homeless (community research model)
+- [Coalition for the Homeless of Central Florida](https://www.centralfloridahomeless.org) — Anchor partner
+
+### BEACON Valuation Decision Points
+
+The README references $0.80 (starting value) while TOKENOMICS uses $1.00 (stable peg) and ALTERNATIVE_COIN_VALUATIONS recommends $0.85 as the optimal launch value for 118% revenue increase over the $1.00 model. **Recommendation: Launch at $0.85 with transparent user education and dual-currency displays (BEACON + USD equivalent).**
+
+### Current Codebase Notes
+
+The existing repo is scaffolded as a Next.js 15 app with Neon + Drizzle (package name is a legacy template name "link-in-bio-page-builder" — should be renamed to "project-beacon"). Core dependencies align well with MVP requirements. Recharts is already installed for dashboard visualizations. Existing `drizzle/` migrations directory and `tests/` structure are ready to extend.
+
+---
+
+*Built with dignity and opportunity through technology — Project Beacon, Orlando FL*
