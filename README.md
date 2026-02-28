@@ -1,100 +1,264 @@
-# Link-in-Bio Page Builder
+# Project Beacon - Crypto-Enabled Community Services Platform
 
-A full-stack link-in-bio page builder where users can create a personalized page with links, headers, and dividers — similar to Linktree. Built with Next.js 15, React 19, and Neon Postgres.
+A blockchain-based platform empowering homeless individuals in Orlando, FL through earned cryptocurrency rewards and essential service access.
 
-## Features
+## 🌟 Overview
 
-- **Email/Password Authentication** — Sign up, log in, and session management via Neon Auth
-- **Profile Editor** — Edit display name, bio, and avatar URL with a live phone-frame preview
-- **Link Management** — Add links, section headers, and dividers
-- **Drag-and-Drop Reorder** — Rearrange items with dnd-kit drag handles
-- **Live Preview** — Real-time preview panel that mirrors the public page layout
-- **Responsive Layout** — Side-by-side editor/preview on desktop, tab toggle on mobile
-- **Save with Feedback** — Explicit save button with toast notifications
+Project Beacon creates an ecosystem where individuals experiencing homelessness can earn BeaconCoin (BEACON) through community service, volunteer work, and skill development. These coins can be redeemed for essential services like food, transportation, shelter, and healthcare.
 
-## Tech Stack
+### Key Features
 
-- **Framework:** Next.js 15 (App Router, `src/` directory)
-- **UI:** React 19, Tailwind CSS v4, shadcn/ui, Lucide icons
-- **Database:** Neon Postgres + Drizzle ORM
-- **Auth:** Neon Auth (`@neondatabase/auth`)
-- **Drag-and-Drop:** dnd-kit
-- **Validation:** Zod
-- **Testing:** Vitest (unit), agent-browser (E2E)
-- **Linting/Formatting:** Biome
+- **Earn BEACON**: Complete activities like cleanup, verification tasks, and community service
+- **Spend BEACON**: Redeem coins at partner locations for essential services
+- **Build Wealth**: Crypto-backed coin value grows over time, protecting against inflation
+- **Community Impact**: Transparent tracking of contributions and assistance
 
-## Getting Started
+## 💰 Economics
+
+### BEACON Value Model
+- **Starting Value**: $0.80 per BEACON
+- **Crypto-Backed**: Reserves held in Bitcoin, Ethereum, Solana, and stablecoins
+- **Growth Potential**: 5-15% annual appreciation protecting against inflation
+- **Service Fee**: 20% platform fee for sustainability
+
+### Real-World Example
+```
+Domino's Pizza (Orlando, FL):
+Year 1: 30 BEACON (2.5 hours work) = 1 pizza
+Year 5: 20-27 BEACON (1.7-2.2 hours work) = 1 pizza
+Result: Same pizza requires LESS work over time!
+```
+
+## 🏗️ Technical Architecture
+
+### Backend
+- **Framework**: Node.js + TypeScript + Express
+- **Database**: PostgreSQL with spatial extensions
+- **Blockchain**: Polygon integration for low-cost transactions
+- **Authentication**: JWT tokens with role-based access
+
+### Database Schema
+- Volunteers with unique ID system (VOL-x###)
+- Admins with tracking system (ADMIN-x###)
+- Comprehensive audit logging
+- Transaction management with crypto integration
+
+## 🚀 Quick Start (Draft 1)
 
 ### Prerequisites
-
+```bash
 - Node.js 18+
-- A [Neon](https://neon.tech) project with Auth enabled
-
-### Setup
-
-1. **Install dependencies:**
-
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-
-2. **Configure environment variables:**
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   Fill in your Neon database URL, auth base URL, and cookie secret.
-
-3. **Push the database schema:**
-
-   ```bash
-   npm run db:push
-   ```
-
-4. **Start the dev server:**
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-> **Note:** Do not use `--turbopack` — middleware does not execute with Turbopack in Next.js 15.
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── (auth)/          # Signup + Login pages
-│   ├── (dashboard)/     # Editor page
-│   └── api/             # Profile, links, links/reorder, slug/check routes
-├── components/
-│   ├── auth/            # Signup/login forms, slug input
-│   ├── editor/          # Link list, link item, add button, profile form, toolbar
-│   ├── preview/         # Phone-frame preview panel
-│   ├── themes/          # Minimal theme (reusable for public pages)
-│   └── ui/              # shadcn/ui primitives
-├── db/                  # Drizzle schema + connection
-├── hooks/               # useProfile data fetching hook
-├── lib/                 # Validations, rate limiter, utils
-├── middleware.ts        # Route protection for /editor, /analytics, /settings
-└── types/               # Shared TypeScript types
+- PostgreSQL 14+
+- Git
 ```
 
-## Scripts
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/yourusername/project-beacon.git
+cd project-beacon
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build |
-| `npm run lint` | Lint with Biome |
-| `npm run lint:fix` | Auto-fix lint issues |
-| `npm run format` | Format with Biome |
-| `npm run test` | Run unit tests (watch mode) |
-| `npm run test:run` | Run unit tests once |
-| `npm run test:e2e` | Run E2E tests |
-| `npm run db:push` | Push schema to database |
-| `npm run db:generate` | Generate Drizzle migrations |
-| `npm run db:studio` | Open Drizzle Studio |
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your database credentials
+
+# Set up database
+npm run db:setup
+
+# Start development server
+npm run dev
+```
+
+### API Endpoints (Draft 1)
+
+#### Volunteer Registration
+```http
+POST /api/draft1/volunteer/signup
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "securepass",
+  "phone": "+1-555-0123",
+  "organization": "Local Shelter"
+}
+```
+
+#### Volunteer Login
+```http
+POST /api/draft1/volunteer/login
+{
+  "volunteerId": "VOL-4A44001",
+  "password": "securepass"
+}
+```
+
+#### Admin Login
+```http
+POST /api/draft1/admin/login
+{
+  "adminId": "ADMIN-4A44001",
+  "password": "adminpass"
+}
+```
+
+## 🆔 ID System
+
+### Volunteer IDs (VOL-x###)
+- Format: `VOL-{hex_initials}{increment}`
+- Example: John Mason → `VOL-4A4D001`
+- Hex conversion: J(4A) + M(4D) = 4A4D
+- Auto-increment for duplicate initials
+
+### Admin IDs (ADMIN-x###)
+- Format: `ADMIN-{hex_initials}{increment}`
+- Example: Alice Brown → `ADMIN-4142001`
+- Same hex logic as volunteers
+
+## 📁 Project Structure
+
+```
+project-beacon/
+├── src/
+│   ├── services/
+│   │   ├── draft1/
+│   │   │   ├── draft1Service.ts
+│   │   │   └── idGenerationService.ts
+│   │   ├── databaseService.ts
+│   │   ├── auditService.ts
+│   │   └── transactionService.ts
+│   ├── routes/
+│   │   └── draft1Routes.ts
+│   └── types/
+│       └── volunteer.types.ts
+├── docs/
+│   ├── API_SPECIFICATION.md
+│   ├── TOKENOMICS_AND_EXCHANGE_RATES.md
+│   ├── CRYPTO_BACKING_STRATEGIES.md
+│   └── VOLUNTEER_API_SPECIFICATION.md
+├── DATABASE_SCHEMA.sql
+├── package.json
+└── README.md
+```
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Test coverage
+npm run test:coverage
+
+# Health check
+curl http://localhost:3000/api/draft1/health
+```
+
+## 🐳 Docker Deployment
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+```
+
+## 📊 Monitoring
+
+### Health Endpoints
+- `/api/draft1/health` - API health status
+- `/api/draft1/examples` - ID generation examples
+
+### Database Monitoring
+- Connection pool status
+- Query performance metrics
+- Audit log tracking
+
+## 🔧 Environment Variables
+
+```bash
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/beacon
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=beacon
+DB_USER=beacon_user
+DB_PASSWORD=secure_password
+
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key
+
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Crypto (Future)
+POLYGON_RPC_URL=https://polygon-rpc.com
+PRIVATE_KEY=your-wallet-private-key
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+### Development Guidelines
+- TypeScript strict mode
+- Comprehensive error handling
+- Audit logging for all admin actions
+- Database transactions for consistency
+- JWT authentication for all endpoints
+
+## 📋 Roadmap
+
+### ✅ Draft 1 (Current)
+- [x] Volunteer registration with unique IDs
+- [x] Admin login system
+- [x] Basic authentication
+- [x] Database schema foundation
+
+### 🔄 Draft 2 (Next)
+- [ ] Task management system
+- [ ] Coin distribution by admins
+- [ ] Activity logging and verification
+- [ ] Basic reporting dashboard
+
+### 🚀 Draft 3 (Future)
+- [ ] Partner integration
+- [ ] Service redemption system
+- [ ] Mobile app development
+- [ ] Blockchain integration
+
+### 🌟 Full Platform
+- [ ] Multi-city expansion
+- [ ] Advanced analytics
+- [ ] Automated crypto rebalancing
+- [ ] Community governance features
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Coalition for the Homeless of Central Florida
+- Orlando community partners
+- Open source crypto and blockchain communities
+- Contributors and supporters of this mission
+
+## 📞 Contact
+
+- **Project Lead**: Jordan Mason
+- **Email**: contact@projectbeacon.org
+- **Website**: https://projectbeacon.org
+
+---
+
+**Building dignity and opportunity through technology** 🌟
